@@ -21,19 +21,20 @@ const Home = () => {
       camera.updateProjectionMatrix();
     });
 
-    const loader = new GLTFLoader();
+    const gltfLoader = new GLTFLoader();
 
     let coffeeMugModel;
-    loader.load(
+    gltfLoader.load(
       '/coffee-cup.gltf',
       (gltf) => {
         coffeeMugModel = gltf.scene;
 
         coffeeMugModel.traverse((child) => {
           if (child.isMesh) {
-            child.material = new THREE.MeshBasicMaterial({
-              color: 0x800080, // Purple color in hexadecimal
-              wireframe: true
+            child.material = new THREE.MeshPhongMaterial({
+              color: 0x800080, 
+              wireframe: true,
+              emissive: 0x800080
             });
           }
         });
@@ -51,13 +52,28 @@ const Home = () => {
 
     camera.position.z = 7;
 
+    let elapsedTime = 0;
     // Animation
     const animate = () => {
       requestAnimationFrame(animate);
 
-      if (coffeeMugModel) { // Ensure the model has been loaded
+      if (coffeeMugModel) {
+        elapsedTime += 0.03;
         coffeeMugModel.rotation.x += 0.01;
-        coffeeMugModel.rotation.y += 0.02; // Spins the coffee mug model
+        coffeeMugModel.rotation.y += 0.01;
+        const pulseFactor = (Math.sin(elapsedTime) + 1) / 2; // Gives value between 0 and 1
+   
+        const currentColor = new THREE.Color();
+        const purpleColor = new THREE.Color(0x800080);
+        const whiteColor = new THREE.Color(0xFFFFFF);
+   
+        currentColor.lerpColors(purpleColor, whiteColor, pulseFactor);
+        
+        coffeeMugModel.traverse((child) => {
+          if (child.isMesh) {
+            child.material.emissive = currentColor;
+          }
+        });
       }
 
       renderer.render(scene, camera);
