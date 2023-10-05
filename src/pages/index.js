@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const Home = () => {
   const containerRef = useRef(null);
@@ -20,23 +21,45 @@ const Home = () => {
       camera.updateProjectionMatrix();
     });
 
-    // Coffee cup shape (using CylinderGeometry for simplicity)
-    const geometry = new THREE.CylinderGeometry(3, 3, 6, 32);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x00FF00, // Neon Green
-      wireframe: true
-    });
+    const loader = new GLTFLoader();
 
-    const coffeeCup = new THREE.Mesh(geometry, material);
-    scene.add(coffeeCup);
+    let coffeeMugModel;
+    loader.load(
+      '/coffee-cup.gltf',
+      (gltf) => {
+        coffeeMugModel = gltf.scene;
 
-    camera.position.z = 10;
+        coffeeMugModel.traverse((child) => {
+          if (child.isMesh) {
+            child.material = new THREE.MeshBasicMaterial({
+              color: 0x800080, // Purple color in hexadecimal
+              wireframe: true
+            });
+          }
+        });
+
+        scene.add(coffeeMugModel);
+      },
+      (xhr) => {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+      },
+      (error) => {
+        console.log('An error happened', error);
+      }
+    );
+
+
+    camera.position.z = 7;
 
     // Animation
     const animate = () => {
       requestAnimationFrame(animate);
-      coffeeCup.rotation.x += 0.01;
-      coffeeCup.rotation.y += 0.01;
+
+      if (coffeeMugModel) { // Ensure the model has been loaded
+        coffeeMugModel.rotation.x += 0.01;
+        coffeeMugModel.rotation.y += 0.02; // Spins the coffee mug model
+      }
+
       renderer.render(scene, camera);
     };
 
