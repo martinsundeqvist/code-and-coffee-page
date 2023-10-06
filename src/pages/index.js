@@ -12,6 +12,10 @@ const Home = () => {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+    let textHoverSpeed = 0.01;
+    let textHoverHeight = 0.1;  // How much it should move up and down
+    let textHoverTime = 0;
     
     renderer.setSize(window.innerWidth, window.innerHeight);
     containerRef.current.appendChild(renderer.domElement);
@@ -108,25 +112,22 @@ const Home = () => {
       }
 
       if (textMesh) {
+        // Increase opacity
         textMesh.material.opacity += 0.01;
-        if (textMesh.material.opacity >= 1) {
+        if (textMesh.material.opacity > 1) {
           textMesh.material.opacity = 1;
-
-          if (textMesh.material.wireframe) {
-            textMesh.material.wireframe = false;
-          }
-
-          textMesh.material.transparent = false;
-
         }
-
+      
+        // Hovering animation
+        textHoverTime += textHoverSpeed;
+        textMesh.position.y = 2 + Math.sin(textHoverTime) * textHoverHeight;
+      
+        // Transition color from white to purple based on opacity
         const currentTextColor = new THREE.Color();
         const purpleColor = new THREE.Color(0x800080);
         const whiteColor = new THREE.Color(0xFFFFFF);
-      
-        // This gives a value between 0 (when starting) and 1 (when fully opaque)
-        let colorFactor = textMesh.material.opacity;
         
+        let colorFactor = textMesh.material.opacity;
         currentTextColor.lerpColors(whiteColor, purpleColor, colorFactor);
         
         textMesh.material.emissive = currentTextColor;
