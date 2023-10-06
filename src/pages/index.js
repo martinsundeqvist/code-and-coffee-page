@@ -16,6 +16,8 @@ const Home = () => {
     let textHoverSpeed = 0.01;
     let textHoverHeight = 0.1;  // How much it should move up and down
     let textHoverTime = 0;
+    let textColorPulseSpeed = 0.01;
+    let textColorPulseTime = 0;
     
     renderer.setSize(window.innerWidth, window.innerHeight);
     containerRef.current.appendChild(renderer.domElement);
@@ -101,6 +103,7 @@ const Home = () => {
         const currentColor = new THREE.Color();
         const purpleColor = new THREE.Color(0x800080);
         const whiteColor = new THREE.Color(0xFFFFFF);
+        const lightPurpleColor = new THREE.Color(0xA020F0);
    
         currentColor.lerpColors(purpleColor, whiteColor, pulseFactor);
         
@@ -131,6 +134,18 @@ const Home = () => {
         currentTextColor.lerpColors(whiteColor, purpleColor, colorFactor);
         
         textMesh.material.emissive = currentTextColor;
+
+        if (elapsedTime > 5) {
+          const deepPurpleColor = new THREE.Color(0x800080);
+          const lightPurpleColor = new THREE.Color(0xDDBDDD);
+
+          textColorPulseTime += textColorPulseSpeed;
+          const pulseFactor = (Math.sin(textColorPulseTime) + 1) / 2;  // Gives value between 0 and 1
+          const currentTextColor = new THREE.Color();
+
+          currentTextColor.lerpColors(deepPurpleColor, lightPurpleColor, pulseFactor);
+          textMesh.material.emissive = currentTextColor;
+        }
       }
 
       renderer.render(scene, camera);
