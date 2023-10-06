@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
 const Home = () => {
   const containerRef = useRef(null);
@@ -49,8 +51,37 @@ const Home = () => {
       }
     );
 
+    const fontLoader = new FontLoader();
 
-    camera.position.z = 7;
+    let textMesh;
+
+    fontLoader.load('/young-serif-regular.json', (font) => {
+      const textGeometry = new TextGeometry('Coffee & Code', {
+        font: font,
+        size: 1,
+        height: 0.2,
+      });
+
+      textGeometry.computeBoundingBox();
+      const textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+
+      const textMaterial = new THREE.MeshPhongMaterial({
+        color: 0xFFFFFF,
+        emissive: 0xFFFFFF,
+        wireframe: true,
+        opacity: 0
+      });
+      textMaterial.transparent = true;
+
+      textMesh = new THREE.Mesh(textGeometry, textMaterial);
+      textMesh.position.set(-textWidth / 2, 2, 3);
+      scene.add(textMesh);
+    });
+
+    let animationProgress = 0;
+
+
+    camera.position.z = 8;
 
     let elapsedTime = 0;
     // Animation
@@ -74,6 +105,31 @@ const Home = () => {
             child.material.emissive = currentColor;
           }
         });
+      }
+
+      if (textMesh) {
+        textMesh.material.opacity += 0.01;
+        if (textMesh.material.opacity >= 1) {
+          textMesh.material.opacity = 1;
+
+          if (textMesh.material.wireframe) {
+            textMesh.material.wireframe = false;
+          }
+
+          textMesh.material.transparent = false;
+
+        }
+
+        const currentTextColor = new THREE.Color();
+        const purpleColor = new THREE.Color(0x800080);
+        const whiteColor = new THREE.Color(0xFFFFFF);
+      
+        // This gives a value between 0 (when starting) and 1 (when fully opaque)
+        let colorFactor = textMesh.material.opacity;
+        
+        currentTextColor.lerpColors(whiteColor, purpleColor, colorFactor);
+        
+        textMesh.material.emissive = currentTextColor;
       }
 
       renderer.render(scene, camera);
