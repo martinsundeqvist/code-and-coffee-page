@@ -19,13 +19,14 @@ const Home = () => {
     let textColorPulseSpeed = 0.01;
     let textColorPulseTime = 0;
     
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    const container = containerRef.current;
+    renderer.setSize(container.clientWidth, container.clientWidth);
     containerRef.current.appendChild(renderer.domElement);
 
     // Resize listener
     window.addEventListener('resize', () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      camera.aspect = window.innerWidth / window.innerHeight;
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
     });
 
@@ -155,8 +156,24 @@ const Home = () => {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ width: '100vw', height: '100vh' }}></div>
+    <div>
+      {/* Adjusted the container's styling */}
+      <div ref={containerRef} style={{ width: '100vw', height: '70vh', overflow: 'hidden' }}></div>
+
+      {/* Rest of the JSX */}
+      <div style={{ 
+            textAlign: 'center', 
+            background: '#F3E5F5',
+            color: '#800080',
+          }}>
+          <p>We're a friendly London-based tech community that arranges local meetups for catching up, discussing technical topic and
+          working on projects. We're open to all skill levels, tech stacks and backgrounds. Whether you draw up technical designs, design
+          UX, code frontend / backend or microcontrollers you're welcome to join in. See below for some links to connect and join us at our
+          next event.</p>
+      </div>
+    </div>
   );
+   
 };
 
 export default Home;
